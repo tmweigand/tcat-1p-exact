@@ -1,0 +1,137 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Which of the steps to run
+castellatedMesh true;
+snap           false;
+addLayers       false;
+
+
+// Geometry. Definition of all surfaces. All surfaces are of class
+// searchableSurface.
+// Surfaces are used
+// - to specify refinement for any mesh cell intersecting it
+// - to specify refinement for any mesh cell inside/outside/near
+// - to 'snap' the mesh boundary to the surface
+geometry
+{
+	//  obstacle
+ 	//  {
+ 	//  	 type searchableEllipse;
+ 	//  	 centre  (0 0 0);
+ 	//  	 radius  0.5;
+ 	//  }
+
+    test.stl // STL filename
+    {
+        type triSurfaceMesh;
+    }
+
+
+};
+
+// Settings for the castellatedMesh generation.
+castellatedMeshControls
+{
+    maxLocalCells 1000000000;
+    maxGlobalCells 1000000000;
+    minRefinementCells 0;
+    nCellsBetweenLevels 3;
+
+    features
+    (
+    );
+
+    refinementSurfaces
+    {
+	 test.stl { level ( 2 2 );  }
+    }
+
+    resolveFeatureAngle 30;
+
+    refinementRegions
+    {
+    }
+
+	locationInMesh ( -1.0 -1.0 -1.0 );
+    allowFreeStandingZoneFaces true;
+}
+
+
+
+// Settings for the snapping.
+snapControls
+{
+  nSmoothPatch 3;
+  tolerance 4; 	// number of smoothing iterations along the surface
+  nSolveIter 3; 	// number of mesh displacement iterations
+  nRelaxIter 5; 	// number of relaxations.  Increase for better geometry conform
+}
+
+
+
+// Settings for the layer addition.
+addLayersControls
+{
+  relativeSizes true;
+  layers
+  {
+      sphere*
+      {
+          nSurfaceLayers 6;
+      }
+  }
+  expansionRatio 1.;
+  finalLayerThickness 1.0;
+  minThickness 0.9;
+  nGrow 1;
+  featureAngle 60;
+  nRelaxIter 5;
+  nSmoothSurfaceNormals 1;
+  nSmoothNormals 3;
+  nSmoothThickness 10;
+  maxFaceThicknessRatio 0.5;
+  maxThicknessToMedialRatio 0.3;
+  minMedianAxisAngle 130;
+  nBufferCellsNoExtrude 0;
+  nLayerIter 50;
+}
+
+
+
+// Generic mesh quality settings. At any undoable phase these determine
+// where to undo.
+meshQualityControls
+{
+    #include "meshQualityDict"
+
+    // Advanced
+
+    //- Number of error distribution iterations
+    nSmoothScale 4;
+    //- Amount to scale back displacement at error points
+    errorReduction 0.75;
+}
+
+
+// Advanced
+
+// Merge tolerance. Is fraction of overall bounding box of initial mesh.
+// Note: the write tolerance needs to be higher than this.
+mergeTolerance 1e-6;
+
+
+// ************************************************************************* //
