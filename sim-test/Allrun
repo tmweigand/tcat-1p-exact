@@ -1,0 +1,26 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+canCompile || exit 0    # Dynamic code
+
+restore0Dir
+
+mkdir tcat
+
+touch tcat-1p-steady.foam
+
+runApplication blockMesh
+
+runApplication snappyHexMesh -overwrite
+
+runApplication renumberMesh -overwrite
+
+# runApplication topoSet
+
+runApplication decomposePar
+
+runApplication mpirun -np 8 tcat-1p -parallel 
+
+#------------------------------------------------------------------------------

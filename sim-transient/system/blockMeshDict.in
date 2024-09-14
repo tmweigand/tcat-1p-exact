@@ -1,0 +1,74 @@
+vertices
+(
+	(0.0 0.0 0.0)
+	(19.139486 0.0 0.0)
+	(19.139486 19.139486 0.0)
+	(0.0 19.139486 0.0)
+	(0.0 0.0 19.139486)
+	(19.139486 0.0 19.139486)
+	(19.139486 19.139486 19.139486)
+	(0.0 19.139486 19.139486)
+);
+
+blocks
+(
+	 hex (0 1 2 3 4 5 6 7 ) box_000 (20 20 20) simpleGrading (1 1 1)
+);
+
+boundary
+(
+	 inlet 
+	 { 
+	 	 type patch;
+	 	 faces
+ 	 	 (
+	 	 	 (0 4 7 3)
+	 	 );
+ 	 }
+ 
+	 outlet 
+	 { 
+	 	 type patch;
+	 	 faces
+ 	 	 (
+	 	 	 (1 2 6 5)
+	 	 );
+ 	 }
+ 
+	 top 
+	 { 
+	 	 type symmetry;
+	 	 faces
+ 	 	 (
+	 	 	 (4 5 1 0)
+	 	 );
+ 	 }
+ 
+	 bottom 
+	 { 
+	 	 type symmetry;
+	 	 faces
+ 	 	 (
+	 	 	 (7 6 2 3)
+	 	 );
+ 	 }
+ 
+	 front 
+	 { 
+	 	 type symmetry;
+	 	 faces
+ 	 	 (
+	 	 	 (0 1 2 3)
+	 	 );
+ 	 }
+ 
+	 back 
+	 { 
+	 	 type symmetry;
+	 	 faces
+ 	 	 (
+	 	 	 (4 5 6 7)
+	 	 );
+ 	 }
+ 
+);

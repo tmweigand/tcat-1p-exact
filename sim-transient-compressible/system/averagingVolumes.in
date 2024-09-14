@@ -1,0 +1,46 @@
+{
+	 name 	 interface;
+	 type 	 faceSet;
+	 action 	 new;
+	 source 	 patchToFace;
+	 patch 	media;
+}
+
+{
+	 name 	 box_000;
+	 type 	 cellZoneSet;
+	 action 	 new;
+	 source 	 boxToCell;
+	 boxes
+	(
+		 (0.0 0.0 0.0) (19.139486 19.139486 19.139486)
+	);
+}
+
+{
+	 name 	 box_000_ws_set;
+	 type 	 faceSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+	(
+		 (0.0 0.0 0.0) (19.139486 19.139486 19.139486)
+	);
+}
+
+{
+	 name 	 box_000_ws_set;
+	 type 	 faceSet;
+	 action 	 subset;
+	 source 	 faceToFace;
+	 set interface;
+}
+
+{
+	 name 	 box_000_ws;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 setToFaceZone;
+	 faceSet 	 box_000_ws_set;
+}
+

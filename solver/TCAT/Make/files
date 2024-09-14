@@ -1,0 +1,5 @@
+simpleControl.C
+TCAT_incompressible.C
+TCAT_compressible.C
+
+LIB = $(FOAM_USER_LIBBIN)/libTCAT

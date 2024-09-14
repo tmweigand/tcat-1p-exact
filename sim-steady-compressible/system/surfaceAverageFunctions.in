@@ -1,0 +1,23 @@
+box_000_ws
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 faceZone; 
+	 name 	 box_000_ws;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 ten_dot_norm 
+		 normals
+		 p
+		 U
+		 mass_flux_surface
+		 stress_term_dev 
+	 	 stress_term_dev_macro 
+		 surface_p
+		 surface_stress_t
+	 ); 
+} 
