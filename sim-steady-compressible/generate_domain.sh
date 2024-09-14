@@ -19,8 +19,9 @@ runParallel snappyHexMesh -overwrite
 
 runApplication reconstructParMesh -constant
 
-# rm -rf processor*
-# runApplication renumberMesh -overwrite
+rm -rf processor*
+
+runApplication renumberMesh -overwrite
 
 # runApplication transformPoints -scale 1.e-5
 #------------------------------------------------------------------------------
