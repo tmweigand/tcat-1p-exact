@@ -1,0 +1,66 @@
+{
+	 name 	 face_000_0;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+(
+		 (-0.01 0.0 0.0) (0.01 19.139486 19.139486)
+	);
+}
+
+{
+	 name 	 face_000_1;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+(
+		 (19.129486 0.0 0.0) (19.149486000000003 19.139486 19.139486)
+	);
+}
+
+{
+	 name 	 face_000_2;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+(
+		 (0.0 -0.01 0.0) (19.139486 0.01 19.139486)
+	);
+}
+
+{
+	 name 	 face_000_3;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+(
+		 (0.0 19.129486 0.0) (19.139486 19.149486000000003 19.139486)
+	);
+}
+
+{
+	 name 	 face_000_4;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+(
+		 (0.0 0.0 -0.01) (19.139486 19.139486 0.01)
+	);
+}
+
+{
+	 name 	 face_000_5;
+	 type 	 faceZoneSet;
+	 action 	 new;
+	 source 	 boxToFace;
+	 boxes
+(
+		 (0.0 0.0 19.129486) (19.139486 19.139486 19.149486000000003)
+	);
+}
+

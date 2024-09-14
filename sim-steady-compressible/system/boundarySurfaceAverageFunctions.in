@@ -1,0 +1,126 @@
+face_000_0
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 patch; 
+	 name 	 inlet;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 phi 
+	 	 mass_flux 
+	 	 div_u 
+	 	 div_u_rho 
+	 	 stress_term_dev 
+	 	 stress_term_dev_macro 
+	 ); 
+} 
+ 
+face_000_1
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 patch; 
+	 name 	 outlet;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 phi 
+	 	 mass_flux 
+	 	 div_u 
+	 	 div_u_rho 
+	 	 stress_term_dev 
+	 	 stress_term_dev_macro 
+	 ); 
+} 
+ 
+face_000_2
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 patch; 
+	 name 	 top;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 phi 
+	 	 mass_flux 
+	 	 div_u 
+	 	 div_u_rho 
+	 	 stress_term_dev 
+	 	 stress_term_dev_macro 
+	 ); 
+} 
+ 
+face_000_3
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 patch; 
+	 name 	 bottom;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 phi 
+	 	 mass_flux 
+	 	 div_u 
+	 	 div_u_rho 
+	 	 stress_term_dev 
+	 	 stress_term_dev_macro 
+	 ); 
+} 
+ 
+face_000_4
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 patch; 
+	 name 	 front;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 phi 
+	 	 mass_flux 
+	 	 div_u 
+	 	 div_u_rho 
+	 	 stress_term_dev 
+	 	 stress_term_dev_macro 
+	 ); 
+} 
+ 
+face_000_5
+{ 
+	 type 	 surfaceFieldValue; 
+	 libs 	 (fieldFunctionObjects); 
+	 writeControl 	 timeStep; 
+	 writeInterval 	 1; 
+	 writeFields 	 false; 
+	 regionType 	 patch; 
+	 name 	 back;
+	 operation 	 areaIntegrate; 
+	 fields 
+	( 
+	 	 phi 
+	 	 mass_flux 
+	 	 div_u 
+	 	 div_u_rho 
+	 	 stress_term_dev 
+	 	 stress_term_dev_macro 
+	 ); 
+} 
+ 

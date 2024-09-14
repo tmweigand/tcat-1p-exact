@@ -1,0 +1,11 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+set -x
+
+wmake TCAT
+wmake tcat-1p-inc-steady
+wmake tcat-1p-inc-transient
+wmake tcat-1p-steady
+wmake tcat-1p-transient
+
+# ----------------------------------------------------------------- end-of-file

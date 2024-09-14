@@ -1,0 +1,50 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+canCompile || exit 0    # Dynamic code
+
+touch tcat-1p-transient-compressible.foam
+
+rm log.tcat-1p-transient
+
+rm -rf tcat/*
+
+base_dir="../sim-steady-compressible/"
+num_procs=-1
+# Loop through all directories that match the pattern 'processor*'
+for dir in "${base_dir}/processor"*; do
+    # Extract the number from the directory name
+    num=$(basename "$dir" | grep -o '[0-9]\+')
+    
+    # Check if the number is greater than the current max_num
+    if [[ $num -gt $num_procs ]]; then
+        num_procs=$num
+    fi
+done
+
+target_dir="${base_dir}/processor0/"
+
+largest_dir=$(find "$target_dir" -maxdepth 1 -type d | while read dir; do basename "$dir"; done | grep -E '^[0-9]+$' | sort -n | tail -1)
+
+echo $largest_dir
+
+cp -rf ../sim-steady-compressible/processor* ../sim-transient-compressible/
+
+base_dir="."
+for dir in "${base_dir}/processor"*; do
+    if [[ -d "$dir/0" ]]; then
+        echo "Deleting $dir/0/"
+        rm -rf "$dir/0"
+    else
+        echo "No '0/' folder found in $dir"
+    fi
+    mv "$dir/$largest_dir/" "$dir/0"
+done
+
+sh update_velocity.sh $num_procs
+
+runParallel tcat-1p-transient
+
+#------------------------------------------------------------------------------
