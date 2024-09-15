@@ -72,6 +72,8 @@ int main(int argc, char *argv[])
 
     int count = 0;
 
+    MacroscaleCompressible tcat(file_out,mesh,count,domain_volume,mu);
+
     while (simple.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
@@ -90,8 +92,8 @@ int main(int argc, char *argv[])
 
         if (simple.criteriaSatisfied())
         {
-            MacroscaleCompressible tcat(file_out,U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf,v_in,rho0,beta,domain_volume,mu,count);
-            tcat.update(runTime.value());
+            
+            tcat.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
             count = count + 1;
         }
     }

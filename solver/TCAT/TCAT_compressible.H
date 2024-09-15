@@ -4,90 +4,93 @@
 
 #include "fvCFD.H"
 #include "objectRegistry.H"
-#include "singlePhaseTransportModel.H"
-#include "turbulentTransportModel.H"
 #include "volFieldsFwd.H"
-
 
 #include <iostream>
 
-namespace Foam {
+namespace Foam
+{
 
-class MacroscaleCompressible {
-
+class MacroscaleCompressible
+{
 public:
-  const volVectorField &U;
-  const volScalarField &p;
-  const volScalarField &p_rgh;
-  const volScalarField &rho;
-  const surfaceScalarField &phi;
-  const volScalarField &chem_potential;
-  const volScalarField &grav_potential;
-  const meshObjects::gravity& g;
-  const volScalarField &gh;
-  const surfaceScalarField &ghf;
-  const dimensionedScalar v_in;
-  const dimensionedScalar rho0;
-  const dimensionedScalar beta;
-  const dimensionedScalar domain_volume;
-  const dimensionedScalar mu;
-  autoPtr<incompressible::turbulenceModel> turbulence;
-  dimensionedScalar e_w;
-  dimensionedScalar sauder_mean;
+    MacroscaleCompressible(word file_out,
+                           const fvMesh& mesh,
+                           const int time,
+                           dimensionedScalar _domain_volume,
+                           dimensionedScalar _mu);
 
-  MacroscaleCompressible(word file_out,const volVectorField &_U, const volScalarField &_p,
-                         const volScalarField &_p_rgh,
-                         const volScalarField &_rho,
-                         const surfaceScalarField &_phi,
-                         const volScalarField &_chem_potential,
-                         const volScalarField &_grav_potential,
-                         const meshObjects::gravity& _g,
-                         const volScalarField &_gh, 
-                         const surfaceScalarField &_ghf,
-                         dimensionedScalar v_in,
-                         dimensionedScalar rho0,
-                         dimensionedScalar beta,
-                         dimensionedScalar domain_volume,
-                         dimensionedScalar mu,
-                         const int time);
-
-  // Method declaration
-  void update(const scalar time);
-  dimensionedVector momentum_error();
-  dimensionedScalar mass_error();
-  dimensionedVector time_int();
-  dimensionedVector macro_velocity();
-  dimensionedScalar macro_density();
-  dimensionedScalar macro_pressure();
-  dimensionedScalar macro_chem_potential();
-  dimensionedScalar macro_grav_potential();
-  dimensionedVector macro_gravity();
-  dimensionedTensor macro_stress_tensor(dimensionedScalar macro_pressure, dimensionedVector macro_velocity);
-  dimensionedTensor macro_strain_tensor(dimensionedTensor macro_grad_u);
-  dimensionedTensor grad_u();
-  dimensionedVector grad_p();
-  dimensionedVector grad_p_new();
-  dimensionedVector grad_e_rho();
-  dimensionedVector grad_e_rho_chem();
-  dimensionedVector grad_chem_potential();
-  dimensionedVector grad_psi();
-  dimensionedVector grad_psi_2();
-  dimensionedVector div_st();
-  dimensionedVector div_vel();
-  dimensionedVector surface_int();
-  dimensionedScalar get_surface_area();
-  dimensionedScalar reynolds(dimensionedScalar sauder_mean, dimensionedScalar rho, dimensionedScalar u);
-  tmp<volSymmTensorField> get_stress_tensor();
-  tmp<volVectorField> get_div_stress_tensor();
+    // Method declaration
+    void update(const int iter,
+                const scalar time,
+                const volVectorField& U,
+                const volScalarField& p,
+                const volScalarField& p_rgh,
+                const volScalarField& rho,
+                const surfaceScalarField& phi,
+                const volScalarField& chem_potential,
+                const volScalarField& grav_potential,
+                const meshObjects::gravity& g,
+                const volScalarField& gh,
+                const surfaceScalarField& ghf);
+    dimensionedScalar time_integral(const volScalarField& arg1);
+    dimensionedVector time_integral(const volScalarField& arg1,
+                                    const volVectorField& arg2);
+    dimensionedScalar get_surface_area();
+    dimensionedScalar reynolds(dimensionedScalar sauder_mean,
+                               dimensionedScalar rho,
+                               dimensionedScalar u);
+    tmp<volSymmTensorField> get_stress_tensor(dimensionedScalar mu,
+                                              const volVectorField& U);
+    tmp<volVectorField> get_div_stress_tensor(dimensionedScalar mu,
+                                              const volVectorField& U);
 
 private:
-  autoPtr<OFstream> outfile_ptr;
-  const fvMesh &mesh;
-  label media_label;
-  surfaceVectorField normals;
-  const polyPatch &media_patch;
-  dimensionedVector surface_integrate(const surfaceVectorField &data);
-  dimensionedTensor surface_integrate(const surfaceTensorField &data);
+    // Mesh Parameters
+
+    word file_out;
+
+    const fvMesh& mesh;
+    label media_label;
+    const polyPatch& media_patch;
+
+    dimensionedScalar mu;
+
+    // Outward normal from the w_phase
+    surfaceVectorField n_w;
+    dimensionedScalar domain_volume;
+    dimensionedScalar w_volume;
+    dimensionedScalar ws_area;
+    dimensionedScalar e_w;
+    dimensionedScalar e_ws;
+    dimensionedScalar sauder_mean;
+
+    // Output
+    autoPtr<OFstream> outfile_ptr;
+
+    template <typename T>
+    dimensioned<T> average(GeometricField<T, fvPatchField, volMesh> data,
+                           dimensionedScalar volume);
+    template <typename T>
+    dimensioned<T> average(GeometricField<T, fvPatchField, volMesh> data,
+                           volScalarField weight);
+    dimensionedVector average(const meshObjects::gravity data,
+                              volScalarField weight);
+    template <typename T1, typename T2>
+    dimensioned<T1> divergence(
+        tmp<GeometricField<T1, fvPatchField, volMesh> > div_term,
+        tmp<GeometricField<T2, fvsPatchField, surfaceMesh> > surface_term);
+    template <typename T>
+    dimensioned<T> gradient(GeometricField<T, fvPatchField, volMesh> data);
+    template <typename T1, typename T2>
+    dimensioned<T1>
+    gradient(tmp<GeometricField<T1, fvPatchField, volMesh> > grad,
+             tmp<GeometricField<T2, fvsPatchField, surfaceMesh> > surface_term);
+    // dimensionedVector surface_integrate(const surfaceVectorField& data);
+    // dimensionedTensor surface_integrate(const surfaceTensorField& data);
+    template <typename T>
+    dimensioned<T>
+    surface_integrate(const GeometricField<T, fvsPatchField, surfaceMesh> data);
 };
 
 } // namespace Foam
