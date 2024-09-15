@@ -139,8 +139,6 @@ bool Foam::simpleControl::loop()
 
     read();
 
-    Info << "TIMS SIMPLE" << endl;
-
     Time& runTime = const_cast<Time&>(mesh_.time());
 
     if (initialised_ && criteriaSatisfied())
