@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
     int count = 0; 
 
-    MacroscaleCompressible tcat(file_out,mesh,count,domain_volume,mu);
+    MacroscaleCompressible tcat(true,file_out,mesh,count,mu);
 
     while (runTime.run())
     {

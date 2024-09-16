@@ -2,6 +2,7 @@
                 Class tcat Declaration
 \*---------------------------------------------------------------------------*/
 
+#include "Pstream.H"
 #include "fvCFD.H"
 #include "objectRegistry.H"
 #include "volFieldsFwd.H"
@@ -14,10 +15,10 @@ namespace Foam
 class MacroscaleCompressible
 {
 public:
-    MacroscaleCompressible(word file_out,
+    MacroscaleCompressible(bool local,
+                           word file_out,
                            const fvMesh& mesh,
                            const int time,
-                           dimensionedScalar _domain_volume,
                            dimensionedScalar _mu);
 
     // Method declaration
@@ -47,7 +48,7 @@ public:
 
 private:
     // Mesh Parameters
-
+    bool local;
     word file_out;
 
     const fvMesh& mesh;
@@ -59,6 +60,7 @@ private:
     // Outward normal from the w_phase
     surfaceVectorField n_w;
     dimensionedScalar domain_volume;
+    point domain_center;
     dimensionedScalar w_volume;
     dimensionedScalar ws_area;
     dimensionedScalar e_w;
@@ -67,30 +69,39 @@ private:
 
     // Output
     autoPtr<OFstream> outfile_ptr;
+    autoPtr<OFstream> vtk_ptr;
 
     template <typename T>
     dimensioned<T> average(GeometricField<T, fvPatchField, volMesh> data,
                            dimensionedScalar volume);
+
     template <typename T>
     dimensioned<T> average(GeometricField<T, fvPatchField, volMesh> data,
                            volScalarField weight);
+
     dimensionedVector average(const meshObjects::gravity data,
                               volScalarField weight);
+
     template <typename T1, typename T2>
     dimensioned<T1> divergence(
         tmp<GeometricField<T1, fvPatchField, volMesh> > div_term,
         tmp<GeometricField<T2, fvsPatchField, surfaceMesh> > surface_term);
+
     template <typename T>
     dimensioned<T> gradient(GeometricField<T, fvPatchField, volMesh> data);
+
     template <typename T1, typename T2>
     dimensioned<T1>
     gradient(tmp<GeometricField<T1, fvPatchField, volMesh> > grad,
              tmp<GeometricField<T2, fvsPatchField, surfaceMesh> > surface_term);
-    // dimensionedVector surface_integrate(const surfaceVectorField& data);
-    // dimensionedTensor surface_integrate(const surfaceTensorField& data);
+
     template <typename T>
     dimensioned<T>
     surface_integrate(const GeometricField<T, fvsPatchField, surfaceMesh> data);
+
+    template <typename T>
+    dimensioned<T>
+    volume_integrate(const GeometricField<T, fvPatchField, volMesh> data);
 };
 
 } // namespace Foam
