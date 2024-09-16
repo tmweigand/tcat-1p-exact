@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 
     int count = 0;
 
-    MacroscaleCompressible tcat(file_out,mesh,count,domain_volume,mu);
+    MacroscaleCompressible tcat_global(false,file_out+"global",mesh,count,mu);
+    MacroscaleCompressible tcat_proc(true,file_out,mesh,count,mu);
 
     while (simple.loop())
     {
@@ -92,8 +93,8 @@ int main(int argc, char *argv[])
 
         if (simple.criteriaSatisfied())
         {
-            
-            tcat.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
+            tcat_global.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
+            tcat_proc.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
             count = count + 1;
         }
     }
