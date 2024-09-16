@@ -35,7 +35,7 @@ for dir in "${base_dir}/processor"*; do
     fi
 done
 
-velocity=(1e-07 1e-06 5e-06 1e-05 5e-05 0.0001 0.0005 0.001 0.005 0.01 0.025 0.05 0.075 0.1 1e-07)
+velocity=(0.0001 0.0005 0.001 0.005 0.01 0.05 0.1 0.5 1 5 10 50 100 0.001)
 length=${#velocity[@]}
 i=1
 while [ $i -ne $length ]
