@@ -3,19 +3,23 @@
 namespace Foam
 {
 
-MacroscaleCompressible::MacroscaleCompressible(word file_out,
+MacroscaleCompressible::MacroscaleCompressible(bool local,
+                                               word file_out,
                                                const fvMesh& mesh,
                                                const int time,
-                                               dimensionedScalar _domain_volume,
                                                dimensionedScalar _mu)
-    : file_out(file_out),
+    : local(local),
+      file_out(file_out),
       mesh(mesh),
       media_label(mesh.boundaryMesh().findPatchID("media")),
       media_patch(
           mesh.boundaryMesh()[mesh.boundaryMesh().findPatchID("media")]),
       mu(_mu),
       n_w(mesh.Sf() / mesh.magSf()),
-      domain_volume(_domain_volume),
+      domain_volume("domain_volume",
+                    dimVolume,
+                    boundBox(mesh.points(), !local).volume()),
+      domain_center(boundBox(mesh.points(), !local).centre()),
       w_volume("w_volume", dimVolume, gSum(mesh.V())),
       ws_area(get_surface_area()),
       e_w(w_volume / domain_volume),
@@ -38,11 +42,21 @@ MacroscaleCompressible::update(const int iter,
                                const volScalarField& gh,
                                const surfaceScalarField& ghf)
 {
+    int proc_id = Pstream::myProcNo();
+
     // Output - needs to be improved
     word file_dir = "tcat/tcat_out_";
-    outfile_ptr.reset(new OFstream(file_dir + file_out + "_" +
-                                   std::to_string(iter) + ".txt"));
-
+    if (local)
+    {
+        outfile_ptr.reset(new OFstream(file_dir + file_out + "_" +
+                                       std::to_string(iter) + "_" +
+                                       std::to_string(proc_id) + ".txt"));
+    }
+    else
+    {
+        outfile_ptr.reset(new OFstream(file_dir + file_out + "_" +
+                                       std::to_string(iter) + ".txt"));
+    }
     // Helpful Variables
     tensor Ei(1, 0, 0, 0, 1, 0, 0, 0, 1);
     volTensorField stress_tensor(-p * Ei + get_stress_tensor(mu, U));
@@ -53,6 +67,7 @@ MacroscaleCompressible::update(const int iter,
 
     // Macroscale Variables
     dimensionedScalar m_density = average(rho, w_volume);
+
     dimensionedScalar m_pressure = average(p, w_volume);
 
     // Macroscale Variables - Density Weighted
@@ -134,6 +149,7 @@ MacroscaleCompressible::update(const int iter,
 
     // // Output
     outfile_ptr() << "Time," << time << "\n"
+                  << "domain_center," << domain_center << "\n"
                   << "Reynolds Number," << Re.value() << "," << Re.dimensions()
                   << '\n'
                   << "Fit," << fit.value() << "," << fit.dimensions() << '\n'
@@ -186,7 +202,8 @@ MacroscaleCompressible::update(const int iter,
                   << (e_rho_grad_chem).dimensions() << "\n"
                   << "Macroscale ew*rho*grad(potential),"
                   << (e_rho_grad_grav).value() << ","
-                  << (e_rho_grad_grav).dimensions() << "\n";
+                  << (e_rho_grad_grav).dimensions() << "\n"
+                  ;
 }
 
 tmp<volSymmTensorField>
@@ -218,14 +235,14 @@ MacroscaleCompressible::reynolds(dimensionedScalar sauder_mean,
 dimensionedScalar
 MacroscaleCompressible::time_integral(const volScalarField& arg1)
 {
-    return (fvc::domainIntegrate(fvc::ddt(arg1)) / domain_volume);
+    return (volume_integrate(fvc::ddt(arg1).cref()) / domain_volume);
 }
 
 dimensionedVector
 MacroscaleCompressible::time_integral(const volScalarField& arg1,
                                       const volVectorField& arg2)
 {
-    return (fvc::domainIntegrate(fvc::ddt(arg1, arg2)) / domain_volume);
+    return (volume_integrate(fvc::ddt(arg1, arg2).cref()) / domain_volume);
 }
 
 template <typename T1, typename T2>
@@ -244,7 +261,7 @@ dimensioned<T>
 MacroscaleCompressible::average(GeometricField<T, fvPatchField, volMesh> data,
                                 dimensionedScalar volume)
 {
-    return (fvc::domainIntegrate(data) / volume);
+    return (volume_integrate(data) / volume);
 }
 
 template <typename T>
@@ -252,23 +269,33 @@ dimensioned<T>
 MacroscaleCompressible::average(GeometricField<T, fvPatchField, volMesh> data,
                                 volScalarField weight)
 {
-    return (fvc::domainIntegrate(data * weight) / fvc::domainIntegrate(weight));
+    return (volume_integrate((data * weight).cref()) / volume_integrate(weight));
 }
 
 dimensionedVector
 MacroscaleCompressible::average(const meshObjects::gravity data,
                                 volScalarField weight)
 {
-    return (fvc::domainIntegrate(data * weight) / fvc::domainIntegrate(weight));
+    return (volume_integrate( (data * weight).cref()) / volume_integrate(weight));
 }
 
 template <typename T>
 dimensioned<T>
 MacroscaleCompressible::gradient(GeometricField<T, fvPatchField, volMesh> data)
 {
-    return (fvc::domainIntegrate(fvc::grad(data)) -
-            surface_integrate(data * n_w)) /
-           domain_volume;
+    dimensioned<T> _grad(dimVolume*data.dimensions,Zero);
+    if (local)
+    {
+        dimensioned<T> vf_sum(
+            _grad.dimensions(), sum(fvc::volumeIntegrate(data)));
+        _grad = vf_sum - surface_integrate((data * n_w).cref());
+    }
+    else
+    {
+        _grad = fvc::domainIntegrate(data) -
+                surface_integrate((data * n_w).cref());
+    }
+    return (_grad / domain_volume);
 }
 
 template <typename T1, typename T2>
@@ -277,9 +304,21 @@ MacroscaleCompressible::gradient(
     tmp<GeometricField<T1, fvPatchField, volMesh> > grad,
     tmp<GeometricField<T2, fvsPatchField, surfaceMesh> > surface_term)
 {
-    return (fvc::domainIntegrate(grad) -
-            surface_integrate((surface_term * n_w).cref())) /
-           domain_volume;
+
+    dimensioned<T1> _grad(dimVolume*grad.ref().dimensions(),Zero);
+
+    if (local)
+    {
+        dimensioned<T1> vf_sum(
+            _grad.dimensions(), sum(fvc::volumeIntegrate(grad)));
+        _grad = vf_sum - surface_integrate((surface_term * n_w).cref());
+    }
+    else
+    {
+        _grad = fvc::domainIntegrate(grad) -
+                surface_integrate((surface_term * n_w).cref());
+    }
+    return (_grad / domain_volume);
 }
 
 template <typename T>
@@ -296,9 +335,11 @@ MacroscaleCompressible::surface_integrate(
         surface_int += data.boundaryField()[media_label][face] *
                        magSf.boundaryField()[media_label][face];
     }
-
-    dimensioned<T> dim_surface_int(
-        "surface_int", data_dim, returnReduce(surface_int, sumOp<T>()));
+    if (!local)
+    {
+        surface_int = returnReduce(surface_int, sumOp<T>());
+    }
+    dimensioned<T> dim_surface_int("surface_int", data_dim, surface_int);
     return dim_surface_int;
 }
 
@@ -311,10 +352,31 @@ MacroscaleCompressible::get_surface_area()
     {
         surface_int += magSf.boundaryField()[media_label][face];
     }
-    dimensionedScalar dim_surface_int(
-        "surface_int", dimArea, returnReduce(surface_int, sumOp<double>()));
+    if (!local)
+    {
+        surface_int = returnReduce(surface_int, sumOp<double>());
+    }
+    dimensionedScalar dim_surface_int("surface_int", dimArea, surface_int);
     return dim_surface_int;
 }
+
+template <typename T>
+dimensioned<T>
+MacroscaleCompressible::volume_integrate(
+    const GeometricField<T, fvPatchField, volMesh> data)
+{
+    auto dim_out = data.dimensions()*dimVolume;
+
+    T vol_int = sum(mesh.V()*data.field());
+
+    if (!local)
+    {
+        vol_int = returnReduce(vol_int, sumOp<T>());
+    }
+    dimensioned<T> dim_vol_int(dim_out, vol_int);
+    return dim_vol_int;
+}
+
 
 } // namespace Foam
 
