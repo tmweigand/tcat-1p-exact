@@ -59,6 +59,7 @@ private:
 
     // Outward normal from the w_phase
     surfaceVectorField n_w;
+    boundBox averaging_region;
     dimensionedScalar domain_volume;
     point domain_center;
     dimensionedScalar w_volume;
@@ -102,6 +103,11 @@ private:
     template <typename T>
     dimensioned<T>
     volume_integrate(const GeometricField<T, fvPatchField, volMesh> data);
+
+    void vtk_write_domain();
+    void vtk_write_data(word name, dimensionedScalar data);
+    void vtk_write_data(word name, dimensionedVector data);
+
 };
 
 } // namespace Foam
