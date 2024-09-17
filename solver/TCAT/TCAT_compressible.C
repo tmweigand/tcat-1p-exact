@@ -19,7 +19,7 @@ MacroscaleCompressible::MacroscaleCompressible(bool local,
       averaging_region(mesh.points(), !local),
       domain_volume("domain_volume", dimVolume, averaging_region.volume()),
       domain_center(averaging_region.centre()),
-      w_volume("w_volume", dimVolume, gSum(mesh.V())),
+      w_volume( get_volume() ),
       ws_area(get_surface_area()),
       e_w(w_volume / domain_volume),
       e_ws(ws_area / domain_volume),
@@ -379,6 +379,20 @@ MacroscaleCompressible::get_surface_area()
     dimensionedScalar dim_surface_int("surface_int", dimArea, surface_int);
     return dim_surface_int;
 }
+
+dimensionedScalar
+MacroscaleCompressible::get_volume()
+{
+    const scalarField& V = mesh.V();
+    auto vol_int = sum(V);
+    if (!local)
+    {
+        vol_int = returnReduce(vol_int, sumOp<double>());
+    }
+    dimensionedScalar dim_volume_int("volume_int", dimVolume, vol_int);
+    return dim_volume_int;
+}
+
 
 template <typename T>
 dimensioned<T>

@@ -37,6 +37,7 @@ public:
     dimensionedScalar time_integral(const volScalarField& arg1);
     dimensionedVector time_integral(const volScalarField& arg1,
                                     const volVectorField& arg2);
+    dimensionedScalar get_volume();
     dimensionedScalar get_surface_area();
     dimensionedScalar reynolds(dimensionedScalar sauder_mean,
                                dimensionedScalar rho,
