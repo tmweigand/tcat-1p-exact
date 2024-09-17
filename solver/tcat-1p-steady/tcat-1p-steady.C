@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     int count = 0;
 
-    MacroscaleCompressible tcat_global(false,file_out+"global",mesh,count,mu);
+    MacroscaleCompressible tcat_global(false,file_out,mesh,count,mu);
     MacroscaleCompressible tcat_proc(true,file_out,mesh,count,mu);
 
     while (simple.loop())
