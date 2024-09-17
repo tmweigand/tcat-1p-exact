@@ -16,16 +16,21 @@ MacroscaleCompressible::MacroscaleCompressible(bool local,
           mesh.boundaryMesh()[mesh.boundaryMesh().findPatchID("media")]),
       mu(_mu),
       n_w(mesh.Sf() / mesh.magSf()),
-      domain_volume("domain_volume",
-                    dimVolume,
-                    boundBox(mesh.points(), !local).volume()),
-      domain_center(boundBox(mesh.points(), !local).centre()),
+      averaging_region(mesh.points(), !local),
+      domain_volume("domain_volume", dimVolume, averaging_region.volume()),
+      domain_center(averaging_region.centre()),
       w_volume("w_volume", dimVolume, gSum(mesh.V())),
       ws_area(get_surface_area()),
       e_w(w_volume / domain_volume),
       e_ws(ws_area / domain_volume),
       sauder_mean(6 * (1 - e_w) / e_w)
 {
+  
+    if (local){
+        word file_dir = "tcat/local/";
+        mkDir(file_dir);
+    }
+
 }
 
 void
@@ -45,17 +50,26 @@ MacroscaleCompressible::update(const int iter,
     int proc_id = Pstream::myProcNo();
 
     // Output - needs to be improved
-    word file_dir = "tcat/tcat_out_";
     if (local)
     {
+        word file_dir = "tcat/local/";
+        // word file_dir = "tcat/local/"+std::to_string(iter)+"/";
+        // mkDir(file_dir);
         outfile_ptr.reset(new OFstream(file_dir + file_out + "_" +
                                        std::to_string(iter) + "_" +
                                        std::to_string(proc_id) + ".txt"));
+
+        vtk_ptr.reset(new OFstream(file_dir + file_out + "_VTK_" +
+                                   std::to_string(iter) + "_" +
+                                   std::to_string(proc_id) + ".vtk"));
+
+        vtk_write_domain();
     }
     else
     {
+        word file_dir = "tcat/";
         outfile_ptr.reset(new OFstream(file_dir + file_out + "_" +
-                                       std::to_string(iter) + ".txt"));
+                                       std::to_string(iter) + "_global.txt"));
     }
     // Helpful Variables
     tensor Ei(1, 0, 0, 0, 1, 0, 0, 0, 1);
@@ -75,6 +89,12 @@ MacroscaleCompressible::update(const int iter,
     dimensionedVector m_gravity = average(g, rho);
     dimensionedScalar m_chem_potential = average(chem_potential, rho);
     dimensionedScalar m_grav_potential = average(grav_potential, rho);
+
+    if (local)
+    {
+        vtk_write_data("density", m_density);
+        vtk_write_data("velocity", m_velocity);
+    }
 
     // Macroscale Stress Tensor
     tmp<volTensorField> stress_tensor_dev =
@@ -202,8 +222,7 @@ MacroscaleCompressible::update(const int iter,
                   << (e_rho_grad_chem).dimensions() << "\n"
                   << "Macroscale ew*rho*grad(potential),"
                   << (e_rho_grad_grav).value() << ","
-                  << (e_rho_grad_grav).dimensions() << "\n"
-                  ;
+                  << (e_rho_grad_grav).dimensions() << "\n";
 }
 
 tmp<volSymmTensorField>
@@ -269,31 +288,33 @@ dimensioned<T>
 MacroscaleCompressible::average(GeometricField<T, fvPatchField, volMesh> data,
                                 volScalarField weight)
 {
-    return (volume_integrate((data * weight).cref()) / volume_integrate(weight));
+    return (volume_integrate((data * weight).cref()) /
+            volume_integrate(weight));
 }
 
 dimensionedVector
 MacroscaleCompressible::average(const meshObjects::gravity data,
                                 volScalarField weight)
 {
-    return (volume_integrate( (data * weight).cref()) / volume_integrate(weight));
+    return (volume_integrate((data * weight).cref()) /
+            volume_integrate(weight));
 }
 
 template <typename T>
 dimensioned<T>
 MacroscaleCompressible::gradient(GeometricField<T, fvPatchField, volMesh> data)
 {
-    dimensioned<T> _grad(dimVolume*data.dimensions,Zero);
+    dimensioned<T> _grad(dimVolume * data.dimensions, Zero);
     if (local)
     {
-        dimensioned<T> vf_sum(
-            _grad.dimensions(), sum(fvc::volumeIntegrate(data)));
+        dimensioned<T> vf_sum(_grad.dimensions(),
+                              sum(fvc::volumeIntegrate(data)));
         _grad = vf_sum - surface_integrate((data * n_w).cref());
     }
     else
     {
-        _grad = fvc::domainIntegrate(data) -
-                surface_integrate((data * n_w).cref());
+        _grad =
+            fvc::domainIntegrate(data) - surface_integrate((data * n_w).cref());
     }
     return (_grad / domain_volume);
 }
@@ -304,13 +325,12 @@ MacroscaleCompressible::gradient(
     tmp<GeometricField<T1, fvPatchField, volMesh> > grad,
     tmp<GeometricField<T2, fvsPatchField, surfaceMesh> > surface_term)
 {
-
-    dimensioned<T1> _grad(dimVolume*grad.ref().dimensions(),Zero);
+    dimensioned<T1> _grad(dimVolume * grad.ref().dimensions(), Zero);
 
     if (local)
     {
-        dimensioned<T1> vf_sum(
-            _grad.dimensions(), sum(fvc::volumeIntegrate(grad)));
+        dimensioned<T1> vf_sum(_grad.dimensions(),
+                               sum(fvc::volumeIntegrate(grad)));
         _grad = vf_sum - surface_integrate((surface_term * n_w).cref());
     }
     else
@@ -365,9 +385,9 @@ dimensioned<T>
 MacroscaleCompressible::volume_integrate(
     const GeometricField<T, fvPatchField, volMesh> data)
 {
-    auto dim_out = data.dimensions()*dimVolume;
+    auto dim_out = data.dimensions() * dimVolume;
 
-    T vol_int = sum(mesh.V()*data.field());
+    T vol_int = sum(mesh.V() * data.field());
 
     if (!local)
     {
@@ -377,6 +397,58 @@ MacroscaleCompressible::volume_integrate(
     return dim_vol_int;
 }
 
+void
+MacroscaleCompressible::vtk_write_domain()
+{
+    auto points = averaging_region.points()();
+
+    // Write VTK file header
+    vtk_ptr() << "# vtk DataFile Version 3.0\n";
+    vtk_ptr() << "Cell Centers with Data (Processor " << Pstream::myProcNo()
+              << ")\n";
+    vtk_ptr() << "ASCII\n";
+    vtk_ptr() << "DATASET UNSTRUCTURED_GRID\n";
+
+    // Write the points to the VTK file
+    vtk_ptr() << "POINTS " << points.size() << " float\n";
+    forAll(points, pointI)
+    {
+        const point& p = points[pointI];
+        vtk_ptr() << p.x() << " " << p.y() << " " << p.z() << "\n";
+    }
+    vtk_ptr() << "CELLS " << 1 << " " << 9 << "\n";
+    vtk_ptr() << points.size(); // Write number of vertices in the cell
+    forAll(points, _p)
+    {
+        vtk_ptr() << " " << _p; // Write index of each vertex
+    }
+    vtk_ptr() << "\n";
+    vtk_ptr() << "CELL_TYPES " << 1 << "\n";
+    vtk_ptr() << "12\n";
+    // vtk_ptr() << "CELL_DATA 1\n";
+    // vtk_ptr() << "SCALARS temperature float 1\n";
+    // vtk_ptr() << "LOOKUP_TABLE default\n";
+    // vtk_ptr() << 300.0 << "\n";
+    // vtk_ptr() << "VECTORS velocity float\n";
+    // vtk_ptr() << Pstream::myProcNo() << " 0.0 0.0\n";
+}
+
+void
+MacroscaleCompressible::vtk_write_data(word name, dimensionedScalar data)
+{
+    vtk_ptr() << "CELL_DATA 1\n";
+    vtk_ptr() << "SCALARS " << name << " float 1\n";
+    vtk_ptr() << "LOOKUP_TABLE default\n";
+    vtk_ptr() << data.value() << "\n";
+}
+
+void
+MacroscaleCompressible::vtk_write_data(word name, dimensionedVector data)
+{
+    vtk_ptr() << "VECTORS " << name << " float \n";
+    vtk_ptr() << data.value().x() << " " << data.value().y() << " "
+              << data.value().z() << "\n";
+}
 
 } // namespace Foam
 

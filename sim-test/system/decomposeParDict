@@ -16,7 +16,14 @@ FoamFile
 
 numberOfSubdomains 8;
 
-method          scotch;
+method          simple;
+
+// Simple decomposition: specify the number of subdivisions in each direction
+simpleCoeffs
+{
+    n           (2 2 2);    // Number of divisions in x, y, z directions
+    delta       0.001;      // Allows for non-cuboidal cells
+}
 
 
 // ************************************************************************* //

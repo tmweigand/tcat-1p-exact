@@ -9,7 +9,7 @@ restore0Dir
 
 touch tcat-1p-steady.foam
 
-rm tcat/*
+rm -rf tcat/*
 
 rm -rf processor*
 
@@ -20,5 +20,7 @@ runApplication decomposePar
 rm log.tcat-1p-steady
 
 runParallel tcat-1p-steady  
+
+python ../scripts/combine_vtk.py ../sim-steady-compressible
 
 #------------------------------------------------------------------------------
