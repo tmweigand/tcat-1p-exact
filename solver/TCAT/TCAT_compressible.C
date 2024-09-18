@@ -139,17 +139,19 @@ MacroscaleCompressible::update(const int iter,
 
     // Gradient Terms - Density Weight so product rule //
     dimensionedVector grad_e_rho_chem =
-        gradient(fvc::grad(rho * chem_potential),
+        gradient( (micro_grad_p + chem_potential*fvc::grad(rho)),
                  fvc::interpolate(rho * chem_potential));
     dimensionedVector e_rho_grad_chem =
         grad_e_rho_chem - (m_chem_potential * grad_ew_rho);
 
+
     dimensionedVector grad_e_rho_grav =
-        gradient(fvc::grad(rho * grav_potential),
+        gradient(-rho*g,
                  fvc::interpolate(rho * grav_potential));
     dimensionedVector e_rho_grad_grav =
         grad_e_rho_grav - (m_grav_potential * grad_ew_rho);
 
+    
     dimensionedTensor grad_e_u =
         gradient(fvc::grad(rho * U), fvc::interpolate(rho * U));
     dimensionedTensor e_rho_grad_U = grad_e_u - (m_velocity * grad_ew_rho);
@@ -220,7 +222,7 @@ MacroscaleCompressible::update(const int iter,
                   << "Macroscale e_w*rho*grad(chem potential),"
                   << (e_rho_grad_chem).value() << ","
                   << (e_rho_grad_chem).dimensions() << "\n"
-                  << "Macroscale ew*rho*grad(potential),"
+                  << "Macroscale e_w*rho*grad(potential),"
                   << (e_rho_grad_grav).value() << ","
                   << (e_rho_grad_grav).dimensions() << "\n";
 }

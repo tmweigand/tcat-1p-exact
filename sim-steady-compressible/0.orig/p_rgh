@@ -46,7 +46,7 @@ boundaryField
     {
     //  type            zeroGradient;
 	 type            fixedValue;
-     value           uniform -1000;
+     value           uniform 0;
     }
 
     top

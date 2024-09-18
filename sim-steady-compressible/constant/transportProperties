@@ -17,20 +17,20 @@ FoamFile
 transportModel  Newtonian;
 
 // TCAT Output File
-file_out tcat_velocity_0.001;
+file_out tcat_velocity_0.1;
 
 // Parameters in g-mm-s
-mu             mu [1 -1 -1 0 0 0 0]  1.; // 8.9e-4 g/(mm-s) UNITS CANCEL SO SAME
+mu             mu [1 -1 -1 0 0 0 0]  8.9e-4; // 8.9e-4 g/(mm-s) UNITS CANCEL SO SAME
 nu             nu [0 2 -1 0 0 0 0]  0.89;  // mm^2/s UNITS CANCEL SO SAME
 rho0            rho0 [1 -3 0 0 0 0 0] 0.001; // g/mm^3
 beta            beta [-1 1 2 0 0 0 0] 1.e-10; // mm-s^2/g UNITS CANCEL SO SAME
-p0            beta [1 -1 -2 0 0 0 0] -1000.;
+p0            beta [1 -1 -2 0 0 0 0] 0.;
 
 // Porous Domain Info
 domain_volume  domain_volume [0 3 0 0 0 0 0] 7011.1750635068;
 
 // Boundary Condition
-v_in v_in [0 1 -1 0 0 0 0] 0.001;
+v_in v_in [0 1 -1 0 0 0 0] 0.1;
 
 
 // // Parameters in kg-m-s
@@ -44,5 +44,5 @@ v_in v_in [0 1 -1 0 0 0 0] 0.001;
 // domain_volume  domain_volume [0 3 0 0 0 0 0] 7.011175064E-12;
 
 // // Boundary Condition
-// v_in v_in [0 1 -1 0 0 0 0] 1e-04;
+// v_in v_in [0 1 -1 0 0 0 0] 1e-08;
 // ************************************************************************* //

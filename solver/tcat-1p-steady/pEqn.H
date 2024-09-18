@@ -49,7 +49,7 @@
     
     p = p_rgh + rho*gh;
     rho = rho0*exp(beta*(p-p0));
-    chem_potential = p/rho;//-1/(rho0*beta)*(exp(-beta*p) - exp(-beta*p0));
+    chem_potential = -1/(rho0*beta)*(exp(-beta*p) - exp(-beta*p0));
     grav_potential = -gh;
 
     #include "continuityErrs.H"
