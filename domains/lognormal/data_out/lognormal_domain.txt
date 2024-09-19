@@ -1,6 +1,0 @@
-Length 13.552875 13.552875 13.552875
-Domain Volume: 2489.39778258392
-Sphere Volume: 1545.8880385180976
-Porosity: 0.37901124146036946
-Sphere Area: 2899.904976238485
-Point in Pore Space: None
