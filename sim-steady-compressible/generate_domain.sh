@@ -19,7 +19,7 @@ runParallel snappyHexMesh -overwrite
 
 runApplication reconstructParMesh -constant
 
-rm -rf processor*
+#rm -rf processor*
 
 runApplication renumberMesh -overwrite
 
