@@ -86,7 +86,7 @@ class Data:
 
 
 
-folder_in = "tcat_water/"
+folder_in = "tcat_mu_1/"
 files = glob.glob(folder_in+"[!local]*")
 sorted_files = sorted(files, key=extract_number)
 
@@ -128,7 +128,7 @@ plt.show()
 plt.semilogx(Re,-(mu_w+psi_w),'o', label = "potential")
 # plt.semilogx(Re,psi_w,'o', label = "grad psi")
 plt.xlabel("Reynolds Number")
-plt.ylabel("U")
+plt.ylabel("sum of potentials")
 plt.legend()
 plt.show()
 
