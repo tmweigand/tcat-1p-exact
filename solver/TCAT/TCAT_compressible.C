@@ -81,7 +81,6 @@ MacroscaleCompressible::update(const int iter,
 
     // Macroscale Variables
     dimensionedScalar m_density = average(rho, w_volume);
-
     dimensionedScalar m_pressure = average(p, w_volume);
 
     // Macroscale Variables - Density Weighted
@@ -152,6 +151,7 @@ MacroscaleCompressible::update(const int iter,
         grad_e_rho_grav - (m_grav_potential * grad_ew_rho);
 
     
+
     dimensionedTensor grad_e_u =
         gradient(fvc::grad(rho * U), fvc::interpolate(rho * U));
     dimensionedTensor e_rho_grad_U = grad_e_u - (m_velocity * grad_ew_rho);

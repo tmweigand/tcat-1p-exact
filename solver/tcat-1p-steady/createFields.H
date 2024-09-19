@@ -13,14 +13,10 @@ IOdictionary transportProperties
 
 
 word file_out(transportProperties.lookup("file_out"));
-
 dimensionedScalar mu(transportProperties.lookup("mu"));
 dimensionedScalar rho0(transportProperties.lookup("rho0"));
 dimensionedScalar beta(transportProperties.lookup("beta"));
 dimensionedScalar p0(transportProperties.lookup("p0"));
-
-dimensionedScalar domain_volume(transportProperties.lookup("domain_volume"));
-
 dimensionedScalar v_in(transportProperties.lookup("v_in"));
 
 
@@ -70,15 +66,6 @@ volScalarField rho
 );
 
 #include "compressibleCreatePhi.H"
-
-singlePhaseTransportModel laminarTransport(U, phi);
-
-autoPtr<incompressible::turbulenceModel> turbulence
-(
-    incompressible::turbulenceModel::New(U, phi, laminarTransport)
-);
-
-
 #include "readGravitationalAcceleration.H"
 #include "readhRef.H"
 #include "gh.H"
@@ -99,7 +86,7 @@ volScalarField p_rgh
 );
 
 // Force p_rgh to be consistent with p
-p_rgh = p - rho*gh;
+p_rgh = p_rgh + rho*gh;
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
@@ -118,7 +105,6 @@ dimensionedScalar initialMass = fvc::domainIntegrate(rho);
 dimensionedScalar totalVolume = sum(mesh.V());
 
 #include "createMRF.H"
-// #include "createRadiationModel.H"
 
 const dimensionedScalar rhoMax("rhoMax", dimDensity, GREAT, simple.dict());
 const dimensionedScalar rhoMin("rhoMin", dimDensity, Zero, simple.dict());
@@ -136,7 +122,7 @@ volScalarField chem_potential
         IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    p/rho //1/(rho0*beta)*(exp(-beta*p) - exp(-beta*p0))
+    1/(rho0*beta)*(exp(-beta*p) - exp(-beta*p0))
 );
 
 volScalarField grav_potential

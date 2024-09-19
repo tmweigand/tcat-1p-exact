@@ -39,9 +39,8 @@ boundaryField
     inlet
     {
         type            flowRateInletVelocity;
-        massFlowRate    constant 1e-01;
+        massFlowRate    constant 1e-07;
         rhoInlet        1;
-        extrapolateProfile yes;
         value           uniform (0 0 0);
     }
 

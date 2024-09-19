@@ -85,8 +85,6 @@ int main(int argc, char *argv[])
             #include "pEqn.H"
         }
 
-        turbulence->correct();
-
         runTime.write();
 
         runTime.printExecutionTime(Info);

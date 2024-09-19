@@ -86,11 +86,11 @@ class Data:
 
 
 
-folder_in = "tcat/"
-files = glob.glob(folder_in+"*")
+folder_in = "tcat_water/"
+files = glob.glob(folder_in+"[!local]*")
 sorted_files = sorted(files, key=extract_number)
 
-steady_data =  Data(sorted_files,28)
+steady_data =  Data(sorted_files,29)
 steady_data.read_output()
 
 Re = steady_data.data['Reynolds Number']['data'][:]
@@ -98,13 +98,12 @@ rho = steady_data.data['Macroscale rho']['data'][:]
 U = steady_data.data['Macroscale U']['data'][:,0]
 
 mu_w = steady_data.data['Macroscale e_w*rho*grad(chem potential)']['data'][:,0]
-psi_w = steady_data.data['Macroscale ew*rho*grad(potential)']['data'][:,0]
+psi_w = steady_data.data['Macroscale e_w*rho*grad(potential)']['data'][:,0]
 
 ### Error Plots
 
-plt.loglog(Re,np.abs(steady_data.data['Microscale mass error']['data'][:]),'o', label = "Mass")
-plt.loglog(Re,np.abs(steady_data.data['Microscale momentum error']['data'][:,0]),'o',label = "Momentum")
-plt.loglog(Re,np.abs(steady_data.data['Macroscale momentum error']['data'][:,0]),'o',label = "Momentum")
+plt.loglog(Re,np.abs(steady_data.data['Mass error']['data'][:]),'o', label = "Mass")
+plt.loglog(Re,np.abs(steady_data.data['Momentum error']['data'][:,0]),'o',label = "Momentum")
 plt.xlabel("Reynolds Number")
 plt.ylabel("Absolute Residual")
 plt.legend()
@@ -113,7 +112,7 @@ plt.show()
 # ### Term Plots
 plt.semilogx(Re,steady_data.data['Macroscale ddt(rho*U)']['data'][:,0],'o',label = 'ddt(rho*U)')
 plt.semilogx(Re,steady_data.data['Macroscale div(rho*U*U)']['data'][:,0],'o',label = 'div(rho*U*U)')
-plt.semilogx(Re,steady_data.data['Macroscale rho*g']['data'][:,0],'o',label = 'rho*g')
+plt.semilogx(Re,steady_data.data['e_w']['data'][:]*steady_data.data['Macroscale rho*g']['data'][:,0],'o',label = 'rho*g')
 plt.semilogx(Re,steady_data.data['Macroscale div(t)']['data'][:,0],'o',label = 'div(t)')
 plt.semilogx(Re,steady_data.data['Macroscale T']['data'][:,0],'o',label = 'T')
 plt.xlabel("Reynolds Number")
@@ -121,23 +120,26 @@ plt.ylabel("Macroscale Momentum Term")
 plt.legend()
 plt.show()
 
+
+
+
 ### Potential Gradient Plots
 
-plt.loglog(Re,mu_w,'o', label = "grad mu")
-plt.loglog(Re,psi_w,'o', label = "grad psi")
+plt.semilogx(Re,-(mu_w+psi_w),'o', label = "potential")
+# plt.semilogx(Re,psi_w,'o', label = "grad psi")
 plt.xlabel("Reynolds Number")
 plt.ylabel("U")
 plt.legend()
 plt.show()
 
 
-### Darcy
+## Darcy
 plt.loglog(U/rho,-(mu_w+psi_w)/(rho*U*U),'o')
 plt.xlabel("Reynolds Number")
 plt.ylabel("Potential")
 plt.show()
 
-# ### Resistance Tensor
+### Resistance Tensor
 # plt.loglog(Re,np.abs(steady_data.data['K']['data'][:]),'o')
 # plt.xlabel("Reynolds Number")
 # plt.ylabel("Resistance Tensor xx")
