@@ -11,7 +11,8 @@ radii = spherepacking.SphereRadii(
     distribution='lognormal',
     mean=0.4,
     stdev=0.2,
-    run_folder=run_folder
+    run_folder=run_folder,
+    media_type = 'spheres'
 )
 
 spheres = spherepacking.Spheres(radii.radii)

@@ -86,58 +86,69 @@ class Data:
 
 
 
-folder_in = "tcat_mu_1/"
+folder_in = "tcat_water/"
 files = glob.glob(folder_in+"[!local]*")
 sorted_files = sorted(files, key=extract_number)
 
 steady_data =  Data(sorted_files,29)
 steady_data.read_output()
 
+print(steady_data.data.keys())
+
 Re = steady_data.data['Reynolds Number']['data'][:]
 rho = steady_data.data['Macroscale rho']['data'][:]
-U = steady_data.data['Macroscale U']['data'][:,0]
+U = steady_data.data['Macroscale U']['data'][:]
 
 mu_w = steady_data.data['Macroscale e_w*rho*grad(chem potential)']['data'][:,0]
 psi_w = steady_data.data['Macroscale e_w*rho*grad(potential)']['data'][:,0]
 
+error = steady_data.data['TCAT Approx 1']['data'][:]
+
 ### Error Plots
 
-plt.loglog(Re,np.abs(steady_data.data['Mass error']['data'][:]),'o', label = "Mass")
-plt.loglog(Re,np.abs(steady_data.data['Momentum error']['data'][:,0]),'o',label = "Momentum")
+# plt.loglog(Re,np.abs(steady_data.data['Mass error']['data'][:]),'o', label = "Mass")
+# plt.loglog(Re,np.abs(steady_data.data['Momentum error']['data'][:,0]),'o',label = "Momentum")
+# plt.xlabel("Reynolds Number")
+# plt.ylabel("Absolute Residual")
+# plt.legend()
+# plt.show()
+
+# # ### Term Plots
+# plt.semilogx(Re,steady_data.data['Macroscale ddt(rho*U)']['data'][:,0],'o',label = 'ddt(rho*U)')
+# plt.semilogx(Re,steady_data.data['Macroscale div(rho*U*U)']['data'][:,0],'o',label = 'div(rho*U*U)')
+# plt.semilogx(Re,steady_data.data['e_w']['data'][:]*steady_data.data['Macroscale rho*g']['data'][:,0],'o',label = 'rho*g')
+# plt.semilogx(Re,steady_data.data['Macroscale div(t)']['data'][:,0],'o',label = 'div(t)')
+# plt.semilogx(Re,steady_data.data['Macroscale T']['data'][:,0],'o',label = 'T')
+# plt.xlabel("Reynolds Number")
+# plt.ylabel("Macroscale Momentum Term")
+# plt.legend()
+# plt.show()
+
+
+
+
+# ### Potential Gradient Plots
+
+# plt.semilogx(Re,-(mu_w+psi_w),'o', label = "potential")
+# # plt.semilogx(Re,psi_w,'o', label = "grad psi")
+# plt.xlabel("Reynolds Number")
+# plt.ylabel("sum of potentials")
+# plt.legend()
+# plt.show()
+
+
+# ## Darcy
+# plt.loglog(U/rho,-(mu_w+psi_w)/(rho*U*U),'o')
+# plt.xlabel("Reynolds Number")
+# plt.ylabel("Potential")
+# plt.show()
+
+## TCAT
+plt.semilogx(Re,error,'o')
 plt.xlabel("Reynolds Number")
-plt.ylabel("Absolute Residual")
-plt.legend()
+plt.ylabel("TCAT Approx")
 plt.show()
 
-# ### Term Plots
-plt.semilogx(Re,steady_data.data['Macroscale ddt(rho*U)']['data'][:,0],'o',label = 'ddt(rho*U)')
-plt.semilogx(Re,steady_data.data['Macroscale div(rho*U*U)']['data'][:,0],'o',label = 'div(rho*U*U)')
-plt.semilogx(Re,steady_data.data['e_w']['data'][:]*steady_data.data['Macroscale rho*g']['data'][:,0],'o',label = 'rho*g')
-plt.semilogx(Re,steady_data.data['Macroscale div(t)']['data'][:,0],'o',label = 'div(t)')
-plt.semilogx(Re,steady_data.data['Macroscale T']['data'][:,0],'o',label = 'T')
-plt.xlabel("Reynolds Number")
-plt.ylabel("Macroscale Momentum Term")
-plt.legend()
-plt.show()
-
-
-
-
-### Potential Gradient Plots
-
-plt.semilogx(Re,-(mu_w+psi_w),'o', label = "potential")
-# plt.semilogx(Re,psi_w,'o', label = "grad psi")
-plt.xlabel("Reynolds Number")
-plt.ylabel("sum of potentials")
-plt.legend()
-plt.show()
-
-
-## Darcy
-plt.loglog(U/rho,-(mu_w+psi_w)/(rho*U*U),'o')
-plt.xlabel("Reynolds Number")
-plt.ylabel("Potential")
-plt.show()
 
 ### Resistance Tensor
 # plt.loglog(Re,np.abs(steady_data.data['K']['data'][:]),'o')

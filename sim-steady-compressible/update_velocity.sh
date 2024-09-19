@@ -14,10 +14,18 @@ for i in `seq 0 $num_procs`;
 do
         file="processor$i/$folder/U"
 
-        # Use sed to find and replace the old line
-        sed -i '' "/$old_line/c\\
-        $new_line
-        " "$file"
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+    		# macOS
+    		sed -i '' "/$old_line/c\\
+    		$new_line
+    		" "$file"
+	else
+    		# Linux
+    		sed -i "/$old_line/c\\
+    		$new_line
+    		" "$file"
+	fi
+
 done
 
 
@@ -27,9 +35,16 @@ file="constant/transportProperties"
 ## As number
 old_line="v_in v_in \[0 1 -1 0 0 0 0\] ${in_vel};"
 new_line="v_in v_in [0 1 -1 0 0 0 0] ${out_vel};"
-sed -i '' "s|$old_line|$new_line|" "$file"
-
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	sed -i '' "s|$old_line|$new_line|" "$file"
+else
+        sed -i "s|$old_line|$new_line|" "$file"
+fi
 ## Output File - as string
 old_line="file_out tcat_velocity_${in_vel};"
 new_line="file_out tcat_velocity_${out_vel};"
-sed -i '' "s|$old_line|$new_line|" "$file"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	sed -i '' "s|$old_line|$new_line|" "$file"
+else
+	sed -i "s|$old_line|$new_line|" "$file"
+fi
