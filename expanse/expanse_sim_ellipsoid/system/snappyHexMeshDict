@@ -29,8 +29,7 @@ addLayers      false;
 geometry
 {
 
-ellipsoid.stl
-    lognormal_openfoam.stl // STL filename
+    ellipsoid.stl // STL filename
     {
         type triSurfaceMesh;
         name media;
@@ -58,7 +57,7 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-	 media { level ( 1 1 );  }
+	 media { level ( 2 2 );  }
     }
 
     resolveFeatureAngle 20;
