@@ -18,10 +18,17 @@ solvers
 {
     "(p|p_rgh)"
     {
-        solver          GAMG;
-        smoother        GaussSeidel;
-        tolerance       1e-10;
-        relTol          0;
+        //solver          GAMG;
+        //smoother        GaussSeidel;
+        //tolerance       1e-10;
+        //relTol          0;
+        solver           GAMG;
+        tolerance        1e-10;             // Convergence tolerance
+        smoother         DICGaussSeidel;    // Smoother type
+        cacheAgglomeration true;            // Cache matrix agglomeration
+        nCellsInCoarsestLevel 20;           // Minimum number of cells in coarsest level
+        agglomerator     faceAreaPair;      // Agglomeration method
+        mergeLevels      1;                 // Number of levels to merge before coarsening
     }
 
     "(pFinal|p_rghFinal)"
@@ -48,12 +55,12 @@ solvers
 
 SIMPLE
 {
-    momentumPredictor yes;
+    momentumPredictor no;
     nNonOrthogonalCorrectors 0;
     residualControl
     {
-        p               1e-3;
-        U               1e-3;
+        p               1e-8;
+        U               1e-8;
     }
 
 }

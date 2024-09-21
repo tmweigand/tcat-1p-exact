@@ -16,7 +16,7 @@ FoamFile
 
 // Which of the steps to run
 castellatedMesh true;
-snap           true;
+snap           false;
 addLayers      false;
 
 
@@ -58,7 +58,7 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-	 media { level ( 2 2 );  }
+	 media { level ( 1 1 );  }
     }
 
     resolveFeatureAngle 20;

@@ -15,11 +15,11 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 x1Min 0;
-x1Max 6.688368;
+x1Max 7.482453;
 y1Min 0;
-y1Max 6.688368;
+y1Max 7.482453;
 z1Min 0;
-z1Max 6.6883685;
+z1Max 7.4824535;
 
 
 vertices
@@ -38,7 +38,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (250 250 250) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (100 100 100) simpleGrading (1 1 1)
 );
 
 

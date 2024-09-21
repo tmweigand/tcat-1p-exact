@@ -58,7 +58,7 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-	 media { level ( 2 2 );  }
+	 media { level ( 1 1 );  }
     }
 
     resolveFeatureAngle 20;

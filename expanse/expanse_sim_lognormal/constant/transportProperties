@@ -17,7 +17,7 @@ FoamFile
 transportModel  Newtonian;
 
 // TCAT Output File
-file_out tcat_velocity_1e-07;
+file_out tcat_velocity_1.e-07;
 
 // Parameters in g-mm-s
 mu             mu [1 -1 -1 0 0 0 0]  8.9e-4; // 8.9e-4 g/(mm-s) UNITS CANCEL SO SAME
@@ -26,7 +26,7 @@ beta            beta [-1 1 2 0 0 0 0] 1.e-10; // mm-s^2/g UNITS CANCEL SO SAME
 p0            beta [1 -1 -2 0 0 0 0] -10000.;
 
 // Boundary Condition
-v_in v_in [0 1 -1 0 0 0 0] 1e-07;
+v_in v_in [0 1 -1 0 0 0 0] 1.e-07;
 
 
 // // Parameters in kg-m-s

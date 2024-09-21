@@ -28,7 +28,7 @@ MacroscaleCompressible::MacroscaleCompressible(bool local,
   
     if (local){
         word file_dir = "tcat/local/";
-        mkDir(file_dir);
+        // mkDir(file_dir);
     }
 
 }

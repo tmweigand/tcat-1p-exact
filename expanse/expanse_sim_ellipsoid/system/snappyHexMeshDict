@@ -57,7 +57,7 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-	 media { level ( 2 2 );  }
+	 media { level ( 1 1 );  }
     }
 
     resolveFeatureAngle 20;
@@ -66,7 +66,7 @@ castellatedMeshControls
     {
     }
 
-	locationInMesh (0.0 0.001 0.001);
+	locationInMesh (1.6477874474474474 0.001 0.001);
     allowFreeStandingZoneFaces false;
 }
 
