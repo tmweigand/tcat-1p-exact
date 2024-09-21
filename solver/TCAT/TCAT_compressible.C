@@ -19,18 +19,58 @@ MacroscaleCompressible::MacroscaleCompressible(bool local,
       averaging_region(mesh.points(), !local),
       domain_volume("domain_volume", dimVolume, averaging_region.volume()),
       domain_center(averaging_region.centre()),
-      w_volume( get_volume() ),
+      w_volume(get_volume()),
       ws_area(get_surface_area()),
       e_w(w_volume / domain_volume),
       e_ws(ws_area / domain_volume),
       sauder_mean(6 * (1 - e_w) / e_w)
 {
-  
-    if (local){
+    if (local)
+    {
         word file_dir = "tcat/local/";
         // mkDir(file_dir);
     }
+}
 
+double
+MacroscaleCompressible::residual(const volVectorField& U,
+                                 const volScalarField& p,
+                                 const volScalarField& p_rgh,
+                                 const volScalarField& rho,
+                                 const surfaceScalarField& phi,
+                                 const meshObjects::gravity& g,
+                                 const volScalarField& gh,
+                                 const surfaceScalarField& ghf)
+{
+    // Helpful Variables
+    tensor Ei(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    volTensorField stress_tensor(-p * Ei + get_stress_tensor(mu, U));
+    tmp<volVectorField> micro_grad_p(
+        rho * g +
+        fvc::reconstruct((ghf * fvc::snGrad(rho) + fvc::snGrad(p_rgh)) *
+                         mesh.magSf()));
+
+    dimensionedScalar m_density = average(rho, w_volume);
+    dimensionedVector m_gravity = average(g, rho);
+
+    dimensionedVector grad_pressure =
+        gradient(micro_grad_p, fvc::interpolate(p));
+    dimensionedVector ddt_rhoU = time_integral(rho, U);
+    dimensionedVector div_e_rho_v_v =
+        divergence(fvc::div(phi, U), fvc::interpolate(rho * U * U));
+    dimensionedVector div_stress_tensor =
+        -grad_pressure + divergence(get_div_stress_tensor(mu, U),
+                                    fvc::interpolate(get_stress_tensor(mu, U)));
+
+    dimensionedVector surface =
+        surface_integrate((fvc::interpolate(stress_tensor) & n_w).cref()) /
+        domain_volume;
+
+    dimensionedVector mom_error =
+        (ddt_rhoU + div_e_rho_v_v - div_stress_tensor -
+         e_w * m_density * m_gravity - surface);
+
+    return mag(mom_error).value();
 }
 
 void
@@ -138,19 +178,15 @@ MacroscaleCompressible::update(const int iter,
 
     // Gradient Terms - Density Weight so product rule //
     dimensionedVector grad_e_rho_chem =
-        gradient( (micro_grad_p + chem_potential*fvc::grad(rho)),
+        gradient((micro_grad_p + chem_potential * fvc::grad(rho)),
                  fvc::interpolate(rho * chem_potential));
     dimensionedVector e_rho_grad_chem =
         grad_e_rho_chem - (m_chem_potential * grad_ew_rho);
 
-
     dimensionedVector grad_e_rho_grav =
-        gradient(-rho*g,
-                 fvc::interpolate(rho * grav_potential));
+        gradient(-rho * g, fvc::interpolate(rho * grav_potential));
     dimensionedVector e_rho_grad_grav =
         grad_e_rho_grav - (m_grav_potential * grad_ew_rho);
-
-    
 
     dimensionedTensor grad_e_u =
         gradient(fvc::grad(rho * U), fvc::interpolate(rho * U));
@@ -394,7 +430,6 @@ MacroscaleCompressible::get_volume()
     dimensionedScalar dim_volume_int("volume_int", dimVolume, vol_int);
     return dim_volume_int;
 }
-
 
 template <typename T>
 dimensioned<T>

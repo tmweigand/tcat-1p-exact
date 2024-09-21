@@ -22,6 +22,15 @@ public:
                            dimensionedScalar _mu);
 
     // Method declaration
+    double residual(const volVectorField& U,
+                  const volScalarField& p,
+                  const volScalarField& p_rgh,
+                  const volScalarField& rho,
+                  const surfaceScalarField& phi,
+                  const meshObjects::gravity& g,
+                  const volScalarField& gh,
+                  const surfaceScalarField& ghf);
+
     void update(const int iter,
                 const scalar time,
                 const volVectorField& U,
@@ -108,7 +117,6 @@ private:
     void vtk_write_domain();
     void vtk_write_data(word name, dimensionedScalar data);
     void vtk_write_data(word name, dimensionedVector data);
-
 };
 
 } // namespace Foam

@@ -75,9 +75,20 @@ int main(int argc, char *argv[])
     MacroscaleCompressible tcat_global(false,file_out,mesh,count,mu);
     MacroscaleCompressible tcat_proc(true,file_out,mesh,count,mu);
 
-    while (simple.loop())
+    double mom_residual = 1.312;
+    double _residual = 1.e-10;
+
+    while (mom_residual > _residual)
     {
+
+        // Take over some of simple's job
+        p_rgh.storePrevIter();
+        U.storePrevIter();
+        rho.storePrevIter();
+
+
         Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info << "Tim! " << mom_residual << '\t' << _residual << endl;
 
         // Pressure-velocity SIMPLE corrector
         {
@@ -89,11 +100,14 @@ int main(int argc, char *argv[])
 
         runTime.printExecutionTime(Info);
 
-        if (simple.criteriaSatisfied())
+        mom_residual = tcat_global.residual(U,p,p_rgh,rho,phi,g,gh,ghf);
+
+        if (mom_residual < _residual)
         {
             tcat_global.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
             tcat_proc.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
             count = count + 1;
+
         }
     }
 

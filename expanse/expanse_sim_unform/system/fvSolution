@@ -55,7 +55,7 @@ solvers
 
 SIMPLE
 {
-    momentumPredictor no;
+    momentumPredictor yes;
     nNonOrthogonalCorrectors 0;
     residualControl
     {
