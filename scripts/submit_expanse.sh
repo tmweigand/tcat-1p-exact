@@ -18,5 +18,9 @@ module load slurm
 module load cpu/0.17.3b  gcc/10.2.0/npcyll4
 module load openmpi/4.1.1
 
-srun ./generate_domain.sh
-srun ./run_inlet_velocities.sh
+cp $HOME/tcat-1p-exact/scripts/generate_domain.sh .
+cp $HOME/tcat-1p-exact/scripts/run_inlet_velocities.sh .
+cp $HOME/tcat-1p-exact/scripts/update_velocity.py .
+
+./generate_domain.sh
+./run_inlet_velocities.sh

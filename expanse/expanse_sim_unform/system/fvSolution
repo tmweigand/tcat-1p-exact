@@ -35,7 +35,7 @@ solvers
     {
         $p;
         tolerance       1e-10;
-        relTol          0;
+        relTol          1.e-3;
     }
 
     "(U|k|epsilon)"
@@ -43,7 +43,7 @@ solvers
       solver          smoothSolver;
        smoother        GaussSeidel;
         tolerance       1e-10;
-        relTol          0;
+        relTol          1.e-3;
     }
 
     "(U|k|epsilon)Final"
@@ -59,8 +59,8 @@ SIMPLE
     nNonOrthogonalCorrectors 0;
     residualControl
     {
-        p               1e-8;
-        U               1e-8;
+        p               1e-5;
+        U               1e-5;
     }
 
 }

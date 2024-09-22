@@ -72,23 +72,24 @@ int main(int argc, char *argv[])
 
     int count = 0;
 
-    MacroscaleCompressible tcat_global(false,file_out,mesh,count,mu);
-    MacroscaleCompressible tcat_proc(true,file_out,mesh,count,mu);
+    // MacroscaleCompressible tcat_global(false,file_out,mesh,count,mu);
+    // MacroscaleCompressible tcat_proc(true,file_out,mesh,count,mu);
 
-    double mom_residual = 1.312;
-    double _residual = 1.e-10;
+    // double mom_residual = 1.312;
+    // double _residual = 1.e-10;
 
-    while (mom_residual > _residual)
+    // while (mom_residual > _residual)
+    while (simple.loop())
     {
 
         // Take over some of simple's job
-        p_rgh.storePrevIter();
-        U.storePrevIter();
-        rho.storePrevIter();
+        // p_rgh.storePrevIter();
+        // U.storePrevIter();
+        // rho.storePrevIter();
 
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
-        Info << "Tim! " << mom_residual << '\t' << _residual << endl;
+        // Info << "Tim! " << mom_residual << '\t' << _residual << endl;
 
         // Pressure-velocity SIMPLE corrector
         {
@@ -100,15 +101,15 @@ int main(int argc, char *argv[])
 
         runTime.printExecutionTime(Info);
 
-        mom_residual = tcat_global.residual(U,p,p_rgh,rho,phi,g,gh,ghf);
+        // mom_residual = tcat_global.residual(U,p,p_rgh,rho,phi,g,gh,ghf);
 
-        if (mom_residual < _residual)
-        {
-            tcat_global.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
-            tcat_proc.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
-            count = count + 1;
+        // if (mom_residual < _residual)
+        // {
+        //     tcat_global.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
+        //     tcat_proc.update(count,runTime.value(),U,p,p_rgh,rho,phi,chem_potential,grav_potential,g,gh,ghf);
+        //     count = count + 1;
 
-        }
+        // }
     }
 
     return 0;
