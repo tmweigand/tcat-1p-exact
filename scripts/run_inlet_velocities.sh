@@ -45,12 +45,14 @@ i=1
 while [ $i -ne $length ]
 do
     # Run code 
-    mpirun -np $num_procs tcat-1p-steady -parallel > log.tcat-1p-steady
+    # mpirun -np $num_procs tcat-1p-steady -parallel > log.tcat-1p-steady
 
     # Update velocity
     ./update_velocity.py -n $num_procs -in ${velocity[i-1]} -out ${velocity[i]} -f 0
     
     mv log.tcat-1p-steady log.tcat-1p-steady${velocity[i-1]}
+
+    echo $i
     
     i=$((i + 1))
 
